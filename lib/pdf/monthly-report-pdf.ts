@@ -208,6 +208,8 @@ class MonthlyReportPdf {
       this.text(item.title, marginX, this.y, 10.5, colors.ink);
       this.y -= 14;
       this.paragraph(item.impact, marginX, pageSize[0] - marginX * 2, 9, colors.muted, 13);
+      this.text(`來源：${item.source} · ${item.sourceUrl}`, marginX, this.y, 7.8, colors.muted);
+      this.y -= 11;
       this.y -= 8;
     }
   }

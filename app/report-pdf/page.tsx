@@ -91,6 +91,8 @@ export default function PdfPage() {
       {report.latestNews.map((item) => (
         <p key={item.id} style={{ fontSize: 11, lineHeight: 1.5 }}>
           <b>{item.date} · {item.company}:</b> {item.title}
+          <br />
+          來源：{item.source} · {item.sourceUrl}
         </p>
       ))}
     </main>

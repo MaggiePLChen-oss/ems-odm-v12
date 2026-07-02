@@ -60,6 +60,7 @@ export type NewsItem = {
   body: string;
   impact: string;
   source: string;
+  sourceUrl: string;
   tone: Tone;
 };
 

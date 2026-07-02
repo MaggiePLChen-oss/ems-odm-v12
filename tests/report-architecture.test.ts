@@ -149,3 +149,12 @@ test('visible report content is localized in Traditional Chinese', () => {
   }
   assert.match(visibleReportText, /[\u4e00-\u9fff]/);
 });
+
+test('latest news items include clickable source URLs', () => {
+  const report = buildIndustryReport(new Date('2026-07-02T00:00:00+08:00'));
+
+  for (const item of report.latestNews) {
+    assert.match(item.sourceUrl, /^https:\/\//, `${item.title} should link to a source URL`);
+    assert.ok(item.source.length >= 4, `${item.title} should keep a readable source label`);
+  }
+});

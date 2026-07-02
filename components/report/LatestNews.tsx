@@ -1,3 +1,4 @@
+import { ExternalLink } from 'lucide-react';
 import type { NewsItem } from '@/types/report';
 import { SectionHeader } from '@/components/report/SectionHeader';
 import { toneBadge } from '@/components/report/tone';
@@ -26,7 +27,16 @@ export function LatestNews({ items }: LatestNewsProps) {
               <p className="mt-2 text-sm leading-6 text-slate-400">{item.body}</p>
               <div className="mt-3 flex flex-col gap-1 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
                 <span>{item.impact}</span>
-                <span>來源：{item.source}</span>
+                <a
+                  href={item.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex w-fit items-center gap-1 text-sky-300 transition hover:text-sky-200"
+                  aria-label={`開啟${item.source}來源連結`}
+                >
+                  來源：{item.source}
+                  <ExternalLink aria-hidden="true" size={12} strokeWidth={2} />
+                </a>
               </div>
             </div>
           </article>

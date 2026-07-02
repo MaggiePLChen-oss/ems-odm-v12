@@ -89,7 +89,8 @@ export function buildIndustryReport(date = new Date()): IndustryReport {
       title: 'AI 伺服器專案仍是資源配置主戰場',
       body: '機櫃整合、液冷能力與區域終端組裝產能，正在拉開同業間最明顯的成長差距。',
       impact: '有利 AI 伺服器領先群；落後者的執行壓力同步升高。',
-      source: '策略情報追蹤',
+      source: '鴻海官方資訊',
+      sourceUrl: 'https://www.honhai.com/en-us',
       tone: 'green',
     },
     {
@@ -100,7 +101,8 @@ export function buildIndustryReport(date = new Date()): IndustryReport {
       title: 'Android 組裝分散化提升富智康印度定位',
       body: '富智康仍是優先追蹤標的，產能利用率、客戶組合與自動化良率都可能快速改變營運槓桿。',
       impact: '若客戶配置加速，具備上行空間。',
-      source: '內部月度觀察清單',
+      source: '富智康官方網站',
+      sourceUrl: 'https://www.fihmb.com/',
       tone: 'blue',
     },
     {
@@ -111,7 +113,8 @@ export function buildIndustryReport(date = new Date()): IndustryReport {
       title: '車用電子能力成為策略篩選條件',
       body: '具備法規製造、電力電子與系統整合能力的 EMS 廠，更容易取得 SDV 相關專案門票。',
       impact: '支撐多年期的非消費電子多元化。',
-      source: '產業桌面研究筆記',
+      source: 'Flex 投資人關係',
+      sourceUrl: 'https://investors.flex.com/overview/default.aspx',
       tone: 'purple',
     },
     {
@@ -122,7 +125,8 @@ export function buildIndustryReport(date = new Date()): IndustryReport {
       title: '消費電子曝險讓毛利復甦不均',
       body: '筆記型電腦與智慧手機復甦仍不一致，市場更偏好伺服器與車用組合轉換較快的廠商。',
       impact: '對產品組合轉換較慢者偏中性至負面。',
-      source: '月度同業檢視',
+      source: '和碩官方月營收',
+      sourceUrl: 'https://www.pegatroncorp.com/investorRelations/monthlyRevenue/lang/en_US',
       tone: 'amber',
     },
   ];
