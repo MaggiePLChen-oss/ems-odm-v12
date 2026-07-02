@@ -1,0 +1,37 @@
+import type { NewsItem } from '@/types/report';
+import { SectionHeader } from '@/components/report/SectionHeader';
+import { toneBadge } from '@/components/report/tone';
+
+type LatestNewsProps = {
+  items: NewsItem[];
+};
+
+export function LatestNews({ items }: LatestNewsProps) {
+  return (
+    <section id="news" className="scroll-mt-24">
+      <SectionHeader eyebrow="05 / 廠商動態" title="最新消息" subtitle="依照參考版型保留廠商動態閱讀位置。" />
+      <div className="overflow-hidden rounded-lg border border-white/10 bg-[#0b1b2d]">
+        {items.map((item, index) => (
+          <article key={item.id} className="grid gap-3 border-b border-white/10 p-4 last:border-b-0 sm:grid-cols-[42px_minmax(0,1fr)]">
+            <div className="font-mono text-2xl font-semibold text-white/15">{String(index + 1).padStart(2, '0')}</div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`rounded-md px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] ring-1 ${toneBadge[item.tone]}`}>
+                  {item.tag}
+                </span>
+                <time className="text-xs text-slate-500">{item.date}</time>
+                <span className="text-xs text-slate-500">{item.company}</span>
+              </div>
+              <h3 className="mt-2 text-sm font-semibold text-slate-100">{item.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-400">{item.body}</p>
+              <div className="mt-3 flex flex-col gap-1 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+                <span>{item.impact}</span>
+                <span>來源：{item.source}</span>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
