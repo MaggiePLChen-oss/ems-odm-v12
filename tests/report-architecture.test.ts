@@ -152,12 +152,26 @@ test('visible report content is localized in Traditional Chinese', () => {
 
 test('latest news items include clickable source URLs', () => {
   const report = buildIndustryReport(new Date('2026-07-02T00:00:00+08:00'));
+  const taiwanMediaHosts = new Set([
+    'www.cna.com.tw',
+    'news.cnyes.com',
+    'money.udn.com',
+    'ctee.com.tw',
+    'www.ctee.com.tw',
+    'technews.tw',
+    'www.digitimes.com.tw',
+  ]);
 
   for (const item of report.latestNews) {
     assert.match(item.sourceUrl, /^https:\/\//, `${item.title} should link to a source URL`);
     assert.ok(item.source.length >= 4, `${item.title} should keep a readable source label`);
 
     const sourceUrl = new URL(item.sourceUrl);
+    assert.ok(
+      taiwanMediaHosts.has(sourceUrl.hostname),
+      `${item.title} should prioritize a Taiwan media source`,
+    );
+
     const pathSegments = sourceUrl.pathname.split('/').filter(Boolean);
     assert.ok(pathSegments.length >= 2, `${item.title} should link to an article page, not a publisher homepage`);
     assert.match(
