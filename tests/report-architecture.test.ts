@@ -156,5 +156,14 @@ test('latest news items include clickable source URLs', () => {
   for (const item of report.latestNews) {
     assert.match(item.sourceUrl, /^https:\/\//, `${item.title} should link to a source URL`);
     assert.ok(item.source.length >= 4, `${item.title} should keep a readable source label`);
+
+    const sourceUrl = new URL(item.sourceUrl);
+    const pathSegments = sourceUrl.pathname.split('/').filter(Boolean);
+    assert.ok(pathSegments.length >= 2, `${item.title} should link to an article page, not a publisher homepage`);
+    assert.match(
+      sourceUrl.pathname,
+      /(article|articleshow|news|industry|markets|servers|tech-industry|desktops)/i,
+      `${item.title} should link to a detailed news article`,
+    );
   }
 });
