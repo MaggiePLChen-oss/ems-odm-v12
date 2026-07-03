@@ -46,6 +46,7 @@ test('page delegates the requested UI sections to maintainable components', () =
     'components/layout/Sidebar.tsx',
     'components/report/ExecutiveSummary.tsx',
     'components/report/KpiCards.tsx',
+    'components/report/TrendAnalysis.tsx',
     'components/report/CompanyTable.tsx',
     'components/report/Watchlist.tsx',
     'components/report/LatestNews.tsx',
@@ -67,6 +68,7 @@ test('page keeps the requested reading flow without extra report sections', () =
   assert.doesNotMatch(pageSource, /Market Trend|Key Issues/);
   assert.match(pageSource, /ExecutiveSummary/);
   assert.match(pageSource, /KpiCards/);
+  assert.match(pageSource, /TrendAnalysis/);
   assert.match(pageSource, /CompanyTable/);
   assert.match(pageSource, /Watchlist/);
   assert.match(pageSource, /LatestNews/);
@@ -80,6 +82,7 @@ test('visible report content is localized in Traditional Chinese', () => {
     executiveSummary: report.executiveSummary,
     kpis: report.kpis,
     watchlist: report.watchlist,
+    trendAnalysis: report.trendAnalysis,
     latestNews: report.latestNews,
     archive: report.archive,
     companyContent: report.companies.map((company) => ({
@@ -96,6 +99,7 @@ test('visible report content is localized in Traditional Chinese', () => {
     'components/report/CompanyTable.tsx',
     'components/report/ExecutiveSummary.tsx',
     'components/report/KpiCards.tsx',
+    'components/report/TrendAnalysis.tsx',
     'components/report/LatestNews.tsx',
     'components/report/PdfDownloadButton.tsx',
     'components/report/Watchlist.tsx',
@@ -148,6 +152,25 @@ test('visible report content is localized in Traditional Chinese', () => {
     assert.doesNotMatch(componentSources, visibleLiteral);
   }
   assert.match(visibleReportText, /[\u4e00-\u9fff]/);
+});
+
+test('report exposes trend analysis with six quarterly points for every tracked company', () => {
+  const report = buildIndustryReport(new Date('2026-07-02T00:00:00+08:00'));
+  const expectedMetrics = ['revenueUsdB', 'grossMargin', 'operatingMargin'];
+
+  assert.deepEqual(report.trendAnalysis.metrics.map((metric) => metric.key), expectedMetrics);
+
+  for (const metric of report.trendAnalysis.metrics) {
+    assert.equal(metric.series.length, companies.length, `${metric.label} should cover every tracked company`);
+
+    for (const series of metric.series) {
+      assert.equal(series.points.length, 6, `${series.companyName} ${metric.label} should include six quarters`);
+      assert.deepEqual(
+        series.points.map((point) => point.period),
+        report.trendAnalysis.periods,
+      );
+    }
+  }
 });
 
 test('latest news items include clickable source URLs', () => {

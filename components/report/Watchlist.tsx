@@ -9,7 +9,7 @@ type WatchlistProps = {
 export function Watchlist({ items }: WatchlistProps) {
   return (
     <section id="watchlist" className="scroll-mt-24">
-      <SectionHeader eyebrow="04 / 關注清單" title="關注清單" subtitle="聚焦會改變競爭排序的議題，而不是新增額外資訊區塊。" />
+      <SectionHeader eyebrow="05 / 關注清單" title="關注清單" subtitle="聚焦會改變競爭排序的議題。" />
       <div className="grid gap-3 lg:grid-cols-2">
         {items.map((item) => (
           <article key={item.title} className={`rounded-lg border bg-white/[0.03] p-4 ${toneBorder[item.tone]}`}>

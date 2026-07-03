@@ -10,7 +10,7 @@ type LatestNewsProps = {
 export function LatestNews({ items }: LatestNewsProps) {
   return (
     <section id="news" className="scroll-mt-24">
-      <SectionHeader eyebrow="05 / 廠商動態" title="最新消息" subtitle="依照參考版型保留廠商動態閱讀位置。" />
+      <SectionHeader eyebrow="06 / 廠商動態" title="最新消息" subtitle="依照參考版型保留廠商動態閱讀位置。" />
       <div className="overflow-hidden rounded-lg border border-white/10 bg-[#0b1b2d]">
         {items.map((item, index) => (
           <article key={item.id} className="grid gap-3 border-b border-white/10 p-4 last:border-b-0 sm:grid-cols-[42px_minmax(0,1fr)]">

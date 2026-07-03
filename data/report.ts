@@ -1,4 +1,5 @@
 import { companies } from '@/data/companies';
+import { buildTrendAnalysis } from '@/data/trends';
 import type { IndustryReport, Kpi, NewsItem, WatchItem } from '@/types/report';
 
 const avg = (values: number[]) => values.reduce((sum, value) => sum + value, 0) / values.length;
@@ -157,6 +158,7 @@ export function buildIndustryReport(date = new Date()): IndustryReport {
       },
     ],
     kpis,
+    trendAnalysis: buildTrendAnalysis(companies),
     watchlist,
     latestNews,
     archive: [

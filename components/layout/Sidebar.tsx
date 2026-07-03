@@ -1,4 +1,4 @@
-import { Archive, BarChart3, Eye, Factory, FileText, LayoutDashboard, Newspaper, Table2 } from 'lucide-react';
+import { Archive, BarChart3, Eye, Factory, FileText, LayoutDashboard, LineChart, Newspaper, Table2 } from 'lucide-react';
 import type { IndustryReport } from '@/types/report';
 
 type SidebarProps = {
@@ -8,6 +8,7 @@ type SidebarProps = {
 const navItems = [
   { href: '#summary', label: '高階摘要', icon: LayoutDashboard },
   { href: '#kpis', label: 'KPI 指標卡', icon: BarChart3 },
+  { href: '#trends', label: '走勢分析', icon: LineChart },
   { href: '#companies', label: '公司表格', icon: Table2 },
   { href: '#watchlist', label: '關注清單', icon: Eye },
   { href: '#news', label: '最新消息', icon: Newspaper },

@@ -6,6 +6,7 @@ import { CompanyTable } from '@/components/report/CompanyTable';
 import { ExecutiveSummary } from '@/components/report/ExecutiveSummary';
 import { KpiCards } from '@/components/report/KpiCards';
 import { LatestNews } from '@/components/report/LatestNews';
+import { TrendAnalysis } from '@/components/report/TrendAnalysis';
 import { Watchlist } from '@/components/report/Watchlist';
 import { buildIndustryReport } from '@/data/report';
 
@@ -18,6 +19,7 @@ export default function Page() {
     <AppShell sidebar={<Sidebar report={report} />} header={<Header report={report} />}>
       <ExecutiveSummary items={report.executiveSummary} />
       <KpiCards kpis={report.kpis} />
+      <TrendAnalysis trend={report.trendAnalysis} />
       <CompanyTable companies={report.companies} />
       <Watchlist items={report.watchlist} />
       <LatestNews items={report.latestNews} />

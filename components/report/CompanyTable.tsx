@@ -76,7 +76,7 @@ export function CompanyTable({ companies }: CompanyTableProps) {
   return (
     <section id="companies" className="scroll-mt-24">
       <SectionHeader
-        eyebrow="03 / 財務儀表板"
+        eyebrow="04 / 財務儀表板"
         title="公司表格"
         subtitle="FIH 以高亮列標示；欄位聚焦市值、營收成長、獲利率與策略重點。"
       />

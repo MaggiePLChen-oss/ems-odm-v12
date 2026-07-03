@@ -64,6 +64,33 @@ export type NewsItem = {
   tone: Tone;
 };
 
+export type TrendMetricKey = 'revenueUsdB' | 'grossMargin' | 'operatingMargin';
+
+export type TrendPoint = {
+  period: string;
+  value: number;
+};
+
+export type TrendSeries = {
+  companyName: string;
+  companyZh: string;
+  ticker: string;
+  highlighted: boolean;
+  points: TrendPoint[];
+};
+
+export type TrendMetric = {
+  key: TrendMetricKey;
+  label: string;
+  unit: string;
+  series: TrendSeries[];
+};
+
+export type TrendAnalysis = {
+  periods: string[];
+  metrics: TrendMetric[];
+};
+
 export type ArchiveItem = {
   label: string;
   period: string;
@@ -77,6 +104,7 @@ export type IndustryReport = {
   companies: Company[];
   executiveSummary: ExecutiveInsight[];
   kpis: Kpi[];
+  trendAnalysis: TrendAnalysis;
   watchlist: WatchItem[];
   latestNews: NewsItem[];
   archive: ArchiveItem[];

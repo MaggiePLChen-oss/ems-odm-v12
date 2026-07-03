@@ -8,7 +8,7 @@ type ArchiveProps = {
 export function Archive({ items }: ArchiveProps) {
   return (
     <section id="archive" className="scroll-mt-24">
-      <SectionHeader eyebrow="06 / 歷史月報" title="歷史月報" subtitle="保留過去月報入口，維持原參考站收尾流程。" />
+      <SectionHeader eyebrow="07 / 歷史月報" title="歷史月報" subtitle="保留過去月報入口，維持原參考站收尾流程。" />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {items.map((item) => (
           <button
