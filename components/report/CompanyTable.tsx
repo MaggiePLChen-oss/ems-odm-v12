@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import type { Company } from '@/types/report';
 import { SectionHeader } from '@/components/report/SectionHeader';
@@ -11,6 +11,7 @@ import {
   type CompanySortState,
   type SortDirection,
 } from '@/lib/company-sort';
+import { mergeCompaniesWithMarketData, type MarketDataPayload } from '@/lib/market-data';
 
 type CompanyTableProps = {
   companies: Company[];
@@ -36,6 +37,29 @@ function movementClass(value: number) {
   if (value > 0) return 'text-emerald-300';
   if (value < 0) return 'text-rose-300';
   return 'text-slate-300';
+}
+
+function formatMarketUpdatedAt(value: string) {
+  return new Intl.DateTimeFormat('zh-TW', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Asia/Taipei',
+  }).format(new Date(value));
+}
+
+function marketStatusText(payload: MarketDataPayload | null, loadState: 'loading' | 'ready' | 'failed') {
+  if (loadState === 'loading') {
+    return '市值 / EPS / P/E 正在讀取報價；營收與獲利率為財報快照。';
+  }
+
+  if (loadState === 'failed' || !payload || payload.status === 'unavailable') {
+    return '市值 / EPS / P/E 目前使用靜態快照；營收與獲利率為財報快照。';
+  }
+
+  const prefix = payload.status === 'partial' ? '部分市值 / EPS / P/E 已接入報價' : '市值 / EPS / P/E 已接入報價';
+  return `${prefix}，更新 ${formatMarketUpdatedAt(payload.updatedAt)}；營收與獲利率為財報快照。`;
 }
 
 const columns: Array<{ key: CompanySortKey; label: string; align?: 'right' }> = [
@@ -64,7 +88,37 @@ function SortIcon({ direction }: { direction?: SortDirection }) {
 
 export function CompanyTable({ companies }: CompanyTableProps) {
   const [sort, setSort] = useState<CompanySortState>(null);
-  const sortedCompanies = useMemo(() => sortCompanies(companies, sort), [companies, sort]);
+  const [marketData, setMarketData] = useState<MarketDataPayload | null>(null);
+  const [marketDataLoadState, setMarketDataLoadState] = useState<'loading' | 'ready' | 'failed'>('loading');
+  const displayCompanies = useMemo(() => mergeCompaniesWithMarketData(companies, marketData), [companies, marketData]);
+  const sortedCompanies = useMemo(() => sortCompanies(displayCompanies, sort), [displayCompanies, sort]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadMarketData() {
+      try {
+        const response = await fetch('/api/market-data', { cache: 'no-store' });
+        if (!response.ok) throw new Error('market data request failed');
+
+        const payload = (await response.json()) as MarketDataPayload;
+        if (!isActive) return;
+
+        setMarketData(payload);
+        setMarketDataLoadState('ready');
+      } catch {
+        if (!isActive) return;
+        setMarketData(null);
+        setMarketDataLoadState('failed');
+      }
+    }
+
+    loadMarketData();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   function handleSort(key: CompanySortKey) {
     setSort((currentSort) => ({
@@ -165,7 +219,7 @@ export function CompanyTable({ companies }: CompanyTableProps) {
           </table>
         </div>
         <div className="flex flex-col gap-1 border-t border-white/10 bg-white/[0.025] px-4 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <span>財務欄位已盡量換算為美元口徑。</span>
+          <span>{marketStatusText(marketData, marketDataLoadState)}</span>
           <span>★ = 富智康重點觀察列</span>
         </div>
       </div>
