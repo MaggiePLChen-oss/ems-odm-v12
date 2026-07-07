@@ -30,7 +30,7 @@ export default function PdfPage() {
         </p>
       </section>
 
-      <h2 style={{ fontSize: 17 }}>高階摘要</h2>
+      <h2 style={{ fontSize: 17 }}>本月三大觀察</h2>
       {report.executiveSummary.map((item) => (
         <p key={item.label} style={{ fontSize: 11, lineHeight: 1.55 }}>
           <b>{item.label}:</b> {item.body}
@@ -47,6 +47,7 @@ export default function PdfPage() {
                 <b>{kpi.value}</b>
               </td>
               <td style={td}>{kpi.delta}</td>
+              <td style={td}>{kpi.definition}</td>
             </tr>
           ))}
         </tbody>
@@ -58,10 +59,11 @@ export default function PdfPage() {
           <tr>
             <th style={th}>公司</th>
             <th style={th}>代號</th>
-            <th style={th}>市值</th>
-            <th style={th}>營收年增</th>
+            <th style={th}>營收</th>
             <th style={th}>毛利率</th>
             <th style={th}>營益率</th>
+            <th style={th}>EPS</th>
+            <th style={th}>P/E</th>
             <th style={th}>關注重點</th>
           </tr>
         </thead>
@@ -70,20 +72,23 @@ export default function PdfPage() {
             <tr key={company.ticker}>
               <td style={td}>{company.zh} / {company.name}</td>
               <td style={td}>{company.ticker}</td>
-              <td style={td}>${company.metrics.marketCapUsdB.toFixed(1)}B</td>
-              <td style={td}>{company.metrics.revenueYoY.toFixed(1)}%</td>
+              <td style={td}>${company.metrics.quarterlyRevenueUsdB.toFixed(1)}B</td>
               <td style={td}>{company.metrics.grossMargin.toFixed(1)}%</td>
               <td style={td}>{company.metrics.operatingMargin.toFixed(1)}%</td>
-              <td style={td}>{company.focus.join(' / ')}</td>
+              <td style={td}>${company.metrics.epsUsd.toFixed(2)}</td>
+              <td style={td}>{company.metrics.peTtm === null ? 'N/A' : `${company.metrics.peTtm.toFixed(1)}x`}</td>
+              <td style={td}>{company.focus.slice(0, 3).join(' / ')}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <h2 style={{ fontSize: 17, marginTop: 18 }}>關注清單</h2>
+      <h2 style={{ fontSize: 17, marginTop: 18 }}>產業機會</h2>
       {report.watchlist.map((item) => (
         <p key={item.title} style={{ fontSize: 11, lineHeight: 1.5 }}>
-          <b>{item.title}</b> — {item.body}
+          <b>{item.category} · {item.title}</b> — {item.summary}
+          <br />
+          關聯公司：{item.relatedCompanies.join(' / ')}；風險或催化劑：{item.riskOrCatalyst}
         </p>
       ))}
 
@@ -91,6 +96,8 @@ export default function PdfPage() {
       {report.latestNews.map((item) => (
         <p key={item.id} style={{ fontSize: 11, lineHeight: 1.5 }}>
           <b>{item.date} · {item.company}:</b> {item.title}
+          <br />
+          {item.body}
           <br />
           來源：{item.source} · {item.sourceUrl}
         </p>

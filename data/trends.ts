@@ -37,11 +37,17 @@ function buildTrendPoints(company: Company, key: TrendMetricKey) {
   });
 }
 
-export function buildTrendAnalysis(companies: Company[]): TrendAnalysis {
+export function buildTrendAnalysis(
+  companies: Company[],
+  updatedAt = new Date().toISOString(),
+): TrendAnalysis {
   const metricKeys: TrendMetricKey[] = ['revenueUsdB', 'grossMargin', 'operatingMargin'];
 
   return {
     periods,
+    source: '公司公告、季度財報與內部同業模型',
+    updatedAt,
+    note: '目前以最近季度財務快照與同業趨勢模型建立；接入正式季度財報 API 後可替換為實際歷史序列。',
     metrics: metricKeys.map((key) => ({
       key,
       label: metricLabels[key].label,

@@ -15,6 +15,7 @@ export type YahooQuote = {
 export type MarketDataItem = {
   ticker: string;
   symbol: string;
+  sharePrice: number | null;
   marketCapUsdB: number;
   epsUsd: number;
   peTtm: number | null;
@@ -86,6 +87,7 @@ function fallbackItem(company: Company, now: string): MarketDataItem {
   return {
     ticker: company.ticker,
     symbol: companyQuoteSymbols[company.ticker] ?? company.ticker,
+    sharePrice: null,
     marketCapUsdB: company.metrics.marketCapUsdB,
     epsUsd: company.metrics.epsUsd,
     peTtm: company.metrics.peTtm,
@@ -113,6 +115,8 @@ export function buildMarketDataPayload(companies: Company[], quotes: YahooQuote[
     return {
       ticker: company.ticker,
       symbol,
+      sharePrice:
+        typeof quote.regularMarketPrice === 'number' ? round(quote.regularMarketPrice, 2) : null,
       marketCapUsdB: round(quote.marketCap / fxRate / 1_000_000_000, 1),
       epsUsd:
         typeof quote.epsTrailingTwelveMonths === 'number'
@@ -153,6 +157,7 @@ export function mergeCompaniesWithMarketData(companies: Company[], payload: Mark
       ...company,
       metrics: {
         ...company.metrics,
+        sharePrice: item.sharePrice,
         marketCapUsdB: item.marketCapUsdB,
         epsUsd: item.epsUsd,
         peTtm: item.peTtm,

@@ -1,4 +1,5 @@
 import { Activity, Clock3, Database, ShieldCheck } from 'lucide-react';
+import { formatUpdatedAt } from '@/components/report/DataFootnote';
 import PdfDownloadButton from '@/components/report/PdfDownloadButton';
 import type { IndustryReport } from '@/types/report';
 
@@ -6,28 +7,19 @@ type HeaderProps = {
   report: IndustryReport;
 };
 
-const formatUpdatedAt = (value: string) =>
-  new Intl.DateTimeFormat('zh-TW', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: 'Asia/Taipei',
-  }).format(new Date(value));
-
 export function Header({ report }: HeaderProps) {
   return (
     <header id="hero" className="mb-8 overflow-hidden rounded-lg border border-white/10 bg-[#0a1d31]">
       <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-sky-300/80">
-            EMS / ODM 產業情報平台
+            EMS / ODM Intelligence Dashboard
           </p>
           <h1 className="mt-2 max-w-3xl text-3xl font-semibold leading-tight text-white sm:text-4xl">
-            全球 EMS/ODM 產業月報
+            EMS/ODM 產業決策儀表板
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
-            追蹤富智康、鴻海、立訊精密、偉創力、廣達、天弘科技、捷普、緯創、和碩、比亞迪電子與仁寶。
+            在 1 分鐘內掌握本月產業重點、主要公司表現、AI Server / Automotive / Robot 機會與可追溯資料來源。
           </p>
         </div>
 

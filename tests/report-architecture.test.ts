@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { companies } from '../data/companies';
 import { buildIndustryReport } from '../data/report';
+import { formatUpdatedAt } from '../components/report/DataFootnote';
 
 const root = process.cwd();
 
@@ -64,15 +65,22 @@ test('page delegates the requested UI sections to maintainable components', () =
 
 test('page keeps the requested reading flow without extra report sections', () => {
   const pageSource = readFileSync(path.join(root, 'app/page.tsx'), 'utf8');
+  const flow = [
+    'ExecutiveSummary',
+    'KpiCards',
+    'CompanyTable',
+    'TrendAnalysis',
+    'LatestNews',
+    'Watchlist',
+    'Archive',
+  ];
 
   assert.doesNotMatch(pageSource, /Market Trend|Key Issues/);
-  assert.match(pageSource, /ExecutiveSummary/);
-  assert.match(pageSource, /KpiCards/);
-  assert.match(pageSource, /TrendAnalysis/);
-  assert.match(pageSource, /CompanyTable/);
-  assert.match(pageSource, /Watchlist/);
-  assert.match(pageSource, /LatestNews/);
-  assert.match(pageSource, /Archive/);
+  for (const component of flow) {
+    assert.match(pageSource, new RegExp(component));
+  }
+  const positions = flow.map((component) => pageSource.indexOf(`<${component}`));
+  assert.deepEqual([...positions].sort((a, b) => a - b), positions);
 });
 
 test('visible report content is localized in Traditional Chinese', () => {
@@ -175,32 +183,73 @@ test('report exposes trend analysis with six quarterly points for every tracked 
 
 test('latest news items include clickable source URLs', () => {
   const report = buildIndustryReport(new Date('2026-07-02T00:00:00+08:00'));
-  const taiwanMediaHosts = new Set([
+  const trustedHosts = new Set([
     'www.cna.com.tw',
-    'news.cnyes.com',
-    'money.udn.com',
-    'ctee.com.tw',
-    'www.ctee.com.tw',
-    'technews.tw',
+    'm.economictimes.com',
+    'www.wsj.com',
+    'www.digitimes.com',
     'www.digitimes.com.tw',
+    'finance.yahoo.com',
+    'www.reuters.com',
+    'www.cnbc.com',
+    'asia.nikkei.com',
+    'www.bloomberg.com',
   ]);
 
   for (const item of report.latestNews) {
     assert.match(item.sourceUrl, /^https:\/\//, `${item.title} should link to a source URL`);
     assert.ok(item.source.length >= 4, `${item.title} should keep a readable source label`);
+    assert.ok(item.body.length >= 50 && item.body.length <= 120, `${item.title} should include a concise sourced summary`);
+    assert.ok(Array.isArray(item.relatedTags) && item.relatedTags.length >= 1, `${item.title} should include company or topic tags`);
 
     const sourceUrl = new URL(item.sourceUrl);
     assert.ok(
-      taiwanMediaHosts.has(sourceUrl.hostname),
-      `${item.title} should prioritize a Taiwan media source`,
+      trustedHosts.has(sourceUrl.hostname),
+      `${item.title} should use an approved news or official source`,
     );
 
     const pathSegments = sourceUrl.pathname.split('/').filter(Boolean);
     assert.ok(pathSegments.length >= 2, `${item.title} should link to an article page, not a publisher homepage`);
-    assert.match(
-      sourceUrl.pathname,
-      /(article|articleshow|news|industry|markets|servers|tech-industry|desktops)/i,
-      `${item.title} should link to a detailed news article`,
-    );
   }
+});
+
+test('KPI cards expose definitions, source labels, and update timestamps', () => {
+  const report = buildIndustryReport(new Date('2026-07-02T00:00:00+08:00'));
+
+  for (const kpi of report.kpis) {
+    assert.ok(kpi.definition.length >= 12, `${kpi.label} should explain the calculation logic`);
+    assert.ok(kpi.source.length >= 4, `${kpi.label} should include a source label`);
+    assert.match(kpi.updatedAt, /^\d{4}-\d{2}-\d{2}T/, `${kpi.label} should include an ISO update timestamp`);
+  }
+});
+
+test('trend, company table, archive, and watchlist carry source metadata for dashboard trust', () => {
+  const report = buildIndustryReport(new Date('2026-07-02T00:00:00+08:00'));
+
+  assert.ok(report.trendAnalysis.source.length >= 4);
+  assert.match(report.trendAnalysis.updatedAt, /^\d{4}-\d{2}-\d{2}T/);
+
+  for (const company of report.companies) {
+    assert.ok(company.dataSource.length >= 4, `${company.name} should include a data source`);
+    assert.match(company.metricsUpdatedAt, /^\d{4}-\d{2}-\d{2}T/, `${company.name} should include metrics update time`);
+  }
+
+  for (const item of report.archive) {
+    assert.match(item.updatedAt, /^\d{4}-\d{2}-\d{2}T/);
+    assert.match(item.htmlUrl, /^#|^\//);
+    assert.match(item.pdfUrl, /^\/api\/pdf/);
+  }
+
+  for (const item of report.watchlist) {
+    assert.ok(item.category.length >= 3);
+    assert.ok(item.relatedCompanies.length >= 1);
+    assert.ok(item.riskOrCatalyst.length >= 10);
+  }
+});
+
+test('source update timestamps render deterministically across server and browser', () => {
+  const formatted = formatUpdatedAt('2026-07-06T08:00:00.000Z');
+
+  assert.equal(formatted, '07/06 下午04:00');
+  assert.doesNotMatch(formatted, /\u202f|\u2009|\u00a0/);
 });

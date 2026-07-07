@@ -29,3 +29,20 @@ test('keeps unavailable valuation metrics at the end when sorting', () => {
 
   assert.equal(sorted.at(-1)?.name, 'FIH Mobile');
 });
+
+test('sorts companies by live share price when available', () => {
+  const withSharePrices = companies.slice(0, 3).map((company, index) => ({
+    ...company,
+    metrics: {
+      ...company.metrics,
+      sharePrice: index === 0 ? 1.2 : index === 1 ? 185 : 42,
+    },
+  }));
+
+  const sorted = sortCompanies(withSharePrices, { key: 'sharePrice', direction: 'desc' });
+
+  assert.deepEqual(
+    sorted.map((company) => company.name),
+    ['Foxconn', 'Luxshare', 'FIH Mobile'],
+  );
+});

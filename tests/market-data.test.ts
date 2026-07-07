@@ -11,6 +11,7 @@ test('converts quoted market caps and EPS into USD values', () => {
       marketCap: 19600000000,
       epsTrailingTwelveMonths: 0.56,
       trailingPE: 35,
+      regularMarketPrice: 1.75,
       regularMarketTime: 1783209600,
     },
     {
@@ -22,6 +23,8 @@ test('converts quoted market caps and EPS into USD values', () => {
 
   assert.equal(payload.status, 'live');
   assert.equal(payload.items[0].ticker, '2038.HK');
+  assert.equal(payload.items[0].sharePrice, 1.75);
+  assert.equal(payload.items[0].quoteCurrency, 'HKD');
   assert.equal(payload.items[0].marketCapUsdB, 2.5);
   assert.equal(payload.items[0].epsUsd, 0.07);
   assert.equal(payload.items[0].peTtm, 35);
@@ -33,6 +36,7 @@ test('keeps static company values when a live quote is unavailable', () => {
 
   assert.equal(payload.status, 'unavailable');
   assert.equal(payload.items[0].source, 'static-fallback');
+  assert.equal(payload.items[0].sharePrice, null);
   assert.equal(merged[0].metrics.marketCapUsdB, companies[0].metrics.marketCapUsdB);
   assert.equal(merged[1].metrics.peTtm, companies[1].metrics.peTtm);
 });
@@ -45,6 +49,7 @@ test('merges live market values without changing fundamental snapshot fields', (
       marketCap: 19600000000,
       epsTrailingTwelveMonths: 0.56,
       trailingPE: 35,
+      regularMarketPrice: 1.75,
       regularMarketTime: 1783209600,
     },
     {
@@ -57,6 +62,7 @@ test('merges live market values without changing fundamental snapshot fields', (
   const [merged] = mergeCompaniesWithMarketData(companies.slice(0, 1), payload);
 
   assert.equal(merged.metrics.marketCapUsdB, 2.5);
+  assert.equal(merged.metrics.sharePrice, 1.75);
   assert.equal(merged.metrics.epsUsd, 0.07);
   assert.equal(merged.metrics.peTtm, 35);
   assert.equal(merged.metrics.revenueYoY, companies[0].metrics.revenueYoY);

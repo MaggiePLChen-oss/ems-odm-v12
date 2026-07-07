@@ -112,8 +112,8 @@ class MonthlyReportPdf {
       borderWidth: 0.9,
     });
 
-    this.text('EMS / ODM 產業情報平台', 64, 748, 10, colors.cyan);
-    this.text('全球 EMS/ODM 產業月報', 64, 716, 25, colors.white);
+    this.text('EMS / ODM Intelligence Dashboard', 64, 748, 10, colors.cyan);
+    this.text('EMS/ODM 產業決策儀表板', 64, 716, 25, colors.white);
     this.text(`報告月份：${this.report.month}`, 64, 690, 11, rgb(0.78, 0.86, 0.95));
     this.text(
       '追蹤富智康、鴻海、立訊精密、偉創力、廣達、天弘科技、捷普、緯創、和碩、比亞迪電子與仁寶。',
@@ -132,7 +132,7 @@ class MonthlyReportPdf {
   }
 
   private executiveSummary() {
-    this.sectionTitle('01 / 概覽', '高階摘要');
+    this.sectionTitle('01 / Executive Summary', '本月三大觀察');
 
     for (const item of this.report.executiveSummary) {
       this.ensure(82);
@@ -155,7 +155,7 @@ class MonthlyReportPdf {
   }
 
   private kpis() {
-    this.sectionTitle('02 / 指標訊號', 'KPI 指標卡');
+    this.sectionTitle('02 / Market Dashboard', 'KPI 指標卡');
 
     const cardWidth = (pageSize[0] - marginX * 2 - 12) / 2;
     const cardHeight = 66;
@@ -171,13 +171,14 @@ class MonthlyReportPdf {
       this.text(kpi.value, x + 12, rowY + 22, 20, this.toneColor(kpi.tone));
       this.text(kpi.delta, x + 80, rowY + 24, 8.5, colors.muted);
       this.text(kpi.note, x + 12, rowY + 10, 8, colors.muted);
+      this.text(kpi.definition.slice(0, 28), x + 12, rowY + 2, 6.5, colors.muted);
       if (col === 1 || index === this.report.kpis.length - 1) this.y -= cardHeight + 12;
     });
   }
 
   private companies() {
-    this.sectionTitle('03 / 財務儀表板', '公司表格');
-    this.tableHeader(['公司', '市場', '市值', '營收年增', '毛利率', '關注重點']);
+    this.sectionTitle('03 / Company Ranking', '公司排名');
+    this.tableHeader(['公司', 'Ticker', '營收', '毛利率', '營益率', 'EPS', 'P/E', '標籤']);
 
     for (const company of this.report.companies) {
       this.companyRow(company);
@@ -185,21 +186,22 @@ class MonthlyReportPdf {
   }
 
   private watchlist() {
-    this.sectionTitle('04 / 觀察清單', '關注清單');
+    this.sectionTitle('06 / Industry Watchlist', '產業機會');
 
     for (const item of this.report.watchlist) {
       this.ensure(64);
-      this.text(`${item.tag} · ${item.company}`, marginX, this.y, 8.5, this.toneColor(item.tone));
+      this.text(`${item.category} · ${item.relatedCompanies.join(' / ')}`, marginX, this.y, 8.5, this.toneColor(item.tone));
       this.y -= 16;
       this.text(item.title, marginX, this.y, 11, colors.ink);
       this.y -= 14;
-      this.paragraph(item.body, marginX, pageSize[0] - marginX * 2, 9.2, colors.muted, 13);
+      this.paragraph(item.summary, marginX, pageSize[0] - marginX * 2, 9.2, colors.muted, 13);
+      this.paragraph(item.riskOrCatalyst, marginX, pageSize[0] - marginX * 2, 8.4, colors.amber, 12);
       this.y -= 10;
     }
   }
 
   private latestNews() {
-    this.sectionTitle('05 / 最新消息', '最新消息');
+    this.sectionTitle('05 / Industry News', 'Industry News');
 
     for (const item of this.report.latestNews) {
       this.ensure(58);
@@ -207,7 +209,7 @@ class MonthlyReportPdf {
       this.y -= 15;
       this.text(item.title, marginX, this.y, 10.5, colors.ink);
       this.y -= 14;
-      this.paragraph(item.impact, marginX, pageSize[0] - marginX * 2, 9, colors.muted, 13);
+      this.paragraph(item.body, marginX, pageSize[0] - marginX * 2, 9, colors.muted, 13);
       this.text(`來源：${item.source} · ${item.sourceUrl}`, marginX, this.y, 7.8, colors.muted);
       this.y -= 11;
       this.y -= 8;
@@ -215,10 +217,10 @@ class MonthlyReportPdf {
   }
 
   private archive() {
-    this.sectionTitle('06 / 歷史月報', '歷史月報');
+    this.sectionTitle('07 / Archive', '歷史月報');
     for (const item of this.report.archive) {
       this.ensure(20);
-      this.text(`${item.label}  ${item.status}`, marginX, this.y, 9.5, colors.muted);
+      this.text(`${item.label}  ${item.status}  PDF：${item.pdfUrl}`, marginX, this.y, 9.5, colors.muted);
       this.y -= 16;
     }
   }
@@ -235,7 +237,7 @@ class MonthlyReportPdf {
     this.ensure(34);
     this.page.drawRectangle({ x: marginX, y: this.y - 22, width: pageSize[0] - marginX * 2, height: 22, color: rgb(0.89, 0.94, 0.98) });
     this.page.drawRectangle({ x: marginX, y: this.y - 22, width: pageSize[0] - marginX * 2, height: 22, borderColor: colors.border, borderWidth: 0.7 });
-    const columns = [0, 146, 208, 268, 342, 404];
+    const columns = [0, 132, 188, 244, 302, 360, 410, 458];
     labels.forEach((label, index) => {
       this.text(label, marginX + columns[index] + 6, this.y - 14, 8.5, colors.muted);
     });
@@ -253,11 +255,13 @@ class MonthlyReportPdf {
     });
     this.text(`${company.zh} / ${company.name}`, marginX + 6, rowTop - 14, 9.2, colors.ink);
     this.text(company.legalName, marginX + 6, rowTop - 28, 8, colors.muted);
-    this.text(`${company.region} · ${company.ticker}`, marginX + 152, rowTop - 18, 7.7, colors.ink);
-    this.text(`$${company.metrics.marketCapUsdB.toFixed(1)}B`, marginX + 214, rowTop - 18, 8.5, colors.ink);
-    this.text(`${company.metrics.revenueYoY.toFixed(1)}%`, marginX + 276, rowTop - 18, 8.5, company.metrics.revenueYoY >= 0 ? colors.green : colors.red);
-    this.text(`${company.metrics.grossMargin.toFixed(1)}%`, marginX + 348, rowTop - 18, 8.5, colors.ink);
-    this.text(company.focus.join(' / '), marginX + 410, rowTop - 18, 8, colors.muted);
+    this.text(`${company.region} · ${company.ticker}`, marginX + 138, rowTop - 18, 7.4, colors.ink);
+    this.text(`$${company.metrics.quarterlyRevenueUsdB.toFixed(1)}B`, marginX + 194, rowTop - 18, 8.2, colors.ink);
+    this.text(`${company.metrics.grossMargin.toFixed(1)}%`, marginX + 250, rowTop - 18, 8.2, colors.ink);
+    this.text(`${company.metrics.operatingMargin.toFixed(1)}%`, marginX + 308, rowTop - 18, 8.2, colors.ink);
+    this.text(`$${company.metrics.epsUsd.toFixed(2)}`, marginX + 366, rowTop - 18, 8.2, colors.ink);
+    this.text(company.metrics.peTtm === null ? 'N/A' : `${company.metrics.peTtm.toFixed(1)}x`, marginX + 416, rowTop - 18, 8.2, colors.ink);
+    this.text(company.focus.slice(0, 3).join(' / '), marginX + 464, rowTop - 18, 7.4, colors.muted);
     this.y -= 36;
   }
 

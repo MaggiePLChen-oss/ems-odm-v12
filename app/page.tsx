@@ -19,10 +19,10 @@ export default function Page() {
     <AppShell sidebar={<Sidebar report={report} />} header={<Header report={report} />}>
       <ExecutiveSummary items={report.executiveSummary} />
       <KpiCards kpis={report.kpis} />
-      <TrendAnalysis trend={report.trendAnalysis} />
       <CompanyTable companies={report.companies} />
-      <Watchlist items={report.watchlist} />
+      <TrendAnalysis trend={report.trendAnalysis} />
       <LatestNews items={report.latestNews} />
+      <Watchlist items={report.watchlist} />
       <Archive items={report.archive} />
     </AppShell>
   );

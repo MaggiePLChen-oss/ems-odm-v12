@@ -6,12 +6,12 @@ type SidebarProps = {
 };
 
 const navItems = [
-  { href: '#summary', label: '高階摘要', icon: LayoutDashboard },
-  { href: '#kpis', label: 'KPI 指標卡', icon: BarChart3 },
-  { href: '#trends', label: '走勢分析', icon: LineChart },
-  { href: '#companies', label: '公司表格', icon: Table2 },
-  { href: '#watchlist', label: '關注清單', icon: Eye },
-  { href: '#news', label: '最新消息', icon: Newspaper },
+  { href: '#summary', label: '三大觀察', icon: LayoutDashboard },
+  { href: '#kpis', label: 'Market Dashboard', icon: BarChart3 },
+  { href: '#companies', label: 'Company Ranking', icon: Table2 },
+  { href: '#trends', label: 'Trend Analysis', icon: LineChart },
+  { href: '#news', label: 'Industry News', icon: Newspaper },
+  { href: '#watchlist', label: '產業機會', icon: Eye },
   { href: '#archive', label: '歷史月報', icon: Archive },
 ];
 
@@ -25,7 +25,7 @@ export function Sidebar({ report }: SidebarProps) {
           </div>
           <div>
             <p className="text-sm font-semibold leading-tight text-white">EMS/ODM</p>
-            <p className="text-xs text-slate-500">策略情報</p>
+            <p className="text-xs text-slate-500">決策儀表板</p>
           </div>
         </div>
 

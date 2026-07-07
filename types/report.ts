@@ -3,6 +3,7 @@ export type RegionCode = 'HK' | 'TW' | 'CN' | 'US' | 'CA';
 export type Tone = 'blue' | 'green' | 'amber' | 'red' | 'purple';
 
 export type CompanyMetrics = {
+  sharePrice?: number | null;
   marketCapUsdB: number;
   quarterlyRevenueUsdB: number;
   revenueYoY: number;
@@ -26,6 +27,8 @@ export type Company = {
   signal: string;
   watchReason: string;
   riskLevel: 'Low' | 'Medium' | 'High';
+  dataSource?: string;
+  metricsUpdatedAt?: string;
 };
 
 export type ExecutiveInsight = {
@@ -40,14 +43,20 @@ export type Kpi = {
   value: string;
   delta: string;
   note: string;
+  definition: string;
+  source: string;
+  updatedAt: string;
   tone: Tone;
 };
 
 export type WatchItem = {
+  category: string;
   title: string;
-  company: string;
-  body: string;
-  tag: string;
+  summary: string;
+  relatedCompanies: string[];
+  riskOrCatalyst: string;
+  source: string;
+  updatedAt: string;
   tone: Tone;
 };
 
@@ -61,6 +70,7 @@ export type NewsItem = {
   impact: string;
   source: string;
   sourceUrl: string;
+  relatedTags: string[];
   tone: Tone;
 };
 
@@ -89,12 +99,19 @@ export type TrendMetric = {
 export type TrendAnalysis = {
   periods: string[];
   metrics: TrendMetric[];
+  source: string;
+  updatedAt: string;
+  note: string;
 };
 
 export type ArchiveItem = {
   label: string;
   period: string;
   status: string;
+  updatedAt: string;
+  htmlUrl: string;
+  pdfUrl: string;
+  source: string;
 };
 
 export type IndustryReport = {

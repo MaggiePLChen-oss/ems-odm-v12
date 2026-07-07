@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import type { Company } from '@/types/report';
+import { DataFootnote, formatUpdatedAt } from '@/components/report/DataFootnote';
 import { SectionHeader } from '@/components/report/SectionHeader';
 import {
   getNextSortDirection,
@@ -29,48 +30,44 @@ function formatNumber(value: number, suffix = '', decimals = 1) {
   return `${value.toFixed(decimals)}${suffix}`;
 }
 
+function formatFinancialValue(value: number | null | undefined, suffix = '', decimals = 1) {
+  if (typeof value !== 'number') return 'N/A';
+  return `${formatNumber(value, suffix, decimals)}`;
+}
+
+function formatUsdB(value: number | null | undefined) {
+  return typeof value === 'number' ? `$${formatNumber(value)}B` : 'N/A';
+}
+
+function formatUsd(value: number | null | undefined, decimals = 2) {
+  return typeof value === 'number' ? `$${formatNumber(value, '', decimals)}` : 'N/A';
+}
+
 function formatPe(value: number | null) {
-  return value === null ? '-' : `${value.toFixed(1)}x`;
-}
-
-function movementClass(value: number) {
-  if (value > 0) return 'text-emerald-300';
-  if (value < 0) return 'text-rose-300';
-  return 'text-slate-300';
-}
-
-function formatMarketUpdatedAt(value: string) {
-  return new Intl.DateTimeFormat('zh-TW', {
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: 'Asia/Taipei',
-  }).format(new Date(value));
+  return value === null ? 'N/A' : `${value.toFixed(1)}x`;
 }
 
 function marketStatusText(payload: MarketDataPayload | null, loadState: 'loading' | 'ready' | 'failed') {
   if (loadState === 'loading') {
-    return '市值 / EPS / P/E 正在讀取報價；營收與獲利率為財報快照。';
+    return 'P/E 正在讀取接近即時報價；財務欄位使用最近季度快照。';
   }
 
   if (loadState === 'failed' || !payload || payload.status === 'unavailable') {
-    return '市值 / EPS / P/E 目前使用靜態快照；營收與獲利率為財報快照。';
+    return 'P/E 目前使用靜態快照；缺值欄位顯示 N/A。';
   }
 
-  const prefix = payload.status === 'partial' ? '部分市值 / EPS / P/E 已接入報價' : '市值 / EPS / P/E 已接入報價';
-  return `${prefix}，更新 ${formatMarketUpdatedAt(payload.updatedAt)}；營收與獲利率為財報快照。`;
+  const prefix = payload.status === 'partial' ? '部分 P/E 已接入報價' : 'P/E 已接入報價';
+  return `${prefix}，更新 ${formatUpdatedAt(payload.updatedAt)}。`;
 }
 
-const columns: Array<{ key: CompanySortKey; label: string; align?: 'right' }> = [
+const columns: Array<{ key: CompanySortKey; label: string; align?: 'right'; quoted?: boolean }> = [
   { key: 'company', label: '公司' },
-  { key: 'market', label: '市場' },
-  { key: 'marketCapUsdB', label: '市值', align: 'right' },
-  { key: 'revenueYoY', label: '營收年增', align: 'right' },
+  { key: 'market', label: 'Ticker' },
+  { key: 'quarterlyRevenueUsdB', label: '營收', align: 'right' },
   { key: 'grossMargin', label: '毛利率', align: 'right' },
   { key: 'operatingMargin', label: '營業利益率', align: 'right' },
   { key: 'epsUsd', label: 'EPS', align: 'right' },
-  { key: 'peTtm', label: 'P/E', align: 'right' },
+  { key: 'peTtm', label: 'P/E', align: 'right', quoted: true },
   { key: 'focus', label: '關注重點' },
 ];
 
@@ -92,6 +89,8 @@ export function CompanyTable({ companies }: CompanyTableProps) {
   const [marketDataLoadState, setMarketDataLoadState] = useState<'loading' | 'ready' | 'failed'>('loading');
   const displayCompanies = useMemo(() => mergeCompaniesWithMarketData(companies, marketData), [companies, marketData]);
   const sortedCompanies = useMemo(() => sortCompanies(displayCompanies, sort), [displayCompanies, sort]);
+  const tableSource = companies[0]?.dataSource ?? '公司公告、季度財報與公開市場資料';
+  const tableUpdatedAt = companies[0]?.metricsUpdatedAt ?? new Date().toISOString();
 
   useEffect(() => {
     let isActive = true;
@@ -130,9 +129,9 @@ export function CompanyTable({ companies }: CompanyTableProps) {
   return (
     <section id="companies" className="scroll-mt-24">
       <SectionHeader
-        eyebrow="04 / 財務儀表板"
-        title="公司表格"
-        subtitle="FIH 以高亮列標示；欄位聚焦市值、營收成長、獲利率與策略重點。"
+        eyebrow="03 / Company Ranking"
+        title="Company Ranking"
+        subtitle="依營收、獲利率與估值欄位快速比較 EMS/ODM 同業，FIH 以高亮列標示。"
       />
 
       <div className="overflow-hidden rounded-lg border border-white/10 bg-[#0b1b2d]">
@@ -153,10 +152,13 @@ export function CompanyTable({ companies }: CompanyTableProps) {
                         type="button"
                         onClick={() => handleSort(column.key)}
                         className={`inline-flex min-h-7 w-full items-center gap-1.5 rounded-md px-1.5 text-slate-500 transition hover:bg-white/[0.05] hover:text-slate-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 ${column.align === 'right' ? 'justify-end' : 'justify-start'}`}
-                        aria-label={`${column.label}排序`}
+                        aria-label={`${column.label}排序${column.quoted ? '，接近即時報價欄位' : ''}`}
                         title={`${column.label}排序`}
                       >
-                        <span>{column.label}</span>
+                        <span>
+                          {column.label}
+                          {column.quoted ? <span className="ml-0.5 text-sky-300">*</span> : null}
+                        </span>
                         <span className={activeDirection ? 'text-sky-300' : 'text-slate-600'}>
                           <SortIcon direction={activeDirection} />
                         </span>
@@ -187,30 +189,33 @@ export function CompanyTable({ companies }: CompanyTableProps) {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-xs text-slate-200">
-                    ${formatNumber(company.metrics.marketCapUsdB)}B
-                  </td>
-                  <td className={`px-4 py-3 text-right font-mono text-xs ${movementClass(company.metrics.revenueYoY)}`}>
-                    {company.metrics.revenueYoY > 0 ? '+' : ''}{formatNumber(company.metrics.revenueYoY, '%')}
+                    {formatUsdB(company.metrics.quarterlyRevenueUsdB)}
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-xs text-slate-200">
-                    {formatNumber(company.metrics.grossMargin, '%')}
+                    {formatFinancialValue(company.metrics.grossMargin, '%')}
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-xs text-slate-200">
-                    {formatNumber(company.metrics.operatingMargin, '%')}
+                    {formatFinancialValue(company.metrics.operatingMargin, '%')}
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-xs text-slate-200">
-                    ${formatNumber(company.metrics.epsUsd, '', 2)}
+                    {formatUsd(company.metrics.epsUsd, 2)}
                   </td>
                   <td className="px-4 py-3 text-right font-mono text-xs text-slate-200">
                     {formatPe(company.metrics.peTtm)}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1.5">
-                      {company.focus.map((focus) => (
+                      {company.focus.slice(0, 3).map((focus) => (
                         <span key={focus} className="rounded-md bg-white/[0.05] px-2 py-1 text-[11px] text-slate-300">
                           {focus}
                         </span>
                       ))}
+                      {company.focus.length > 3 ? (
+                        <span className="rounded-md bg-white/[0.03] px-2 py-1 text-[11px] text-slate-500">
+                          +{company.focus.length - 3}
+                        </span>
+                      ) : null}
+                      {company.focus.length === 0 ? <span className="text-xs text-slate-500">N/A</span> : null}
                     </div>
                   </td>
                 </tr>
@@ -218,9 +223,16 @@ export function CompanyTable({ companies }: CompanyTableProps) {
             </tbody>
           </table>
         </div>
-        <div className="flex flex-col gap-1 border-t border-white/10 bg-white/[0.025] px-4 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <span>{marketStatusText(marketData, marketDataLoadState)}</span>
-          <span>★ = 富智康重點觀察列</span>
+        <div className="border-t border-white/10 bg-white/[0.025] px-4 py-3">
+          <span>
+            <span>{marketStatusText(marketData, marketDataLoadState)}</span>{' '}
+            <span>★ = 富智康重點觀察列。</span>
+          </span>
+          <DataFootnote
+            source={tableSource}
+            updatedAt={tableUpdatedAt}
+            note="營收以最近季度美元換算；P/E 可能由 Yahoo Finance 報價覆蓋，未取得時使用快照。"
+          />
         </div>
       </div>
     </section>

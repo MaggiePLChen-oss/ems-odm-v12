@@ -3,7 +3,9 @@ import type { Company } from '@/types/report';
 export type CompanySortKey =
   | 'company'
   | 'market'
+  | 'sharePrice'
   | 'marketCapUsdB'
+  | 'quarterlyRevenueUsdB'
   | 'revenueYoY'
   | 'grossMargin'
   | 'operatingMargin'
@@ -29,8 +31,12 @@ function getSortValue(company: Company, key: CompanySortKey): string | number | 
       return `${company.zh} ${company.name} ${company.legalName}`;
     case 'market':
       return `${company.region} ${company.ticker}`;
+    case 'sharePrice':
+      return company.metrics.sharePrice ?? null;
     case 'marketCapUsdB':
       return company.metrics.marketCapUsdB;
+    case 'quarterlyRevenueUsdB':
+      return company.metrics.quarterlyRevenueUsdB;
     case 'revenueYoY':
       return company.metrics.revenueYoY;
     case 'grossMargin':
